@@ -1,5 +1,9 @@
 use std::fmt;
 
+/// Error to be returned if the given expression is not a valid one
+/// # Fields
+/// * `text` - given expression
+/// * `index` - index of invalid character
 pub struct ParsingError {
     pub text: String,
     pub index: usize,
@@ -29,8 +33,9 @@ impl fmt::Display for ParsingError {
 }
 
 impl fmt::Debug for ParsingError {
-    fn fmt(&self, _f: &mut fmt::Formatter) -> fmt::Result {
-        println!("{}", self);
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self))?;
+
         Ok(())
     }
 }

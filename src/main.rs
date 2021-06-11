@@ -17,7 +17,7 @@ fn main() {
         .get(1)
         .expect("Args has exactly 2 arguments at this point. Index 1 is valid");
 
-    let res = parse_expression(&expression);
+    let res = parse_expression(&&expression);
 
     match res {
         Ok(val) => println!("{} = {}", expression, val),
