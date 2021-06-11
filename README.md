@@ -14,13 +14,13 @@ To install, clone the repository and then run `cargo install --path .`
 
 Expression may use any of the following:
 
--   Decimal numbers: 0 - 9
--   Parentheses: (, )
--   Addition : +
--   Subtraction : -
--   Multiplication : \*
--   Division : \*
--   Modulo : %
+-   Decimal numbers: `0 - 9`, decimal point numbers are allowed i.e. `2.5542`
+-   Parentheses: `(`, `)`
+-   Addition : `+`
+-   Subtraction : `-`
+-   Multiplication : `*`
+-   Division : `/`
+-   Modulo : `%`
 
 ### Examples:
 
