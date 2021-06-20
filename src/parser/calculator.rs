@@ -1,17 +1,7 @@
-use super::checker::*;
-use super::parsing_error::*;
+use super::{checker::*, operations::*, parsing_error::*};
 
 /// Abstraction of tuple returned by calculation function.
 type CalcRes = (f64, usize);
-
-#[derive(PartialEq, Eq)]
-enum Operation {
-    Add,
-    Subt,
-    Mult,
-    Div,
-    Mod,
-}
 
 /// Parses the expression and returns f64 as a result of calculation or <br> ParsingError if invalid expression encountered
 ///
@@ -30,7 +20,16 @@ enum Operation {
 pub fn parse_expression(exp: &str) -> Result<f64, ParsingError> {
     let no_whitespaces = remove_whitespaces(exp)?;
 
-    Ok(calculate(&no_whitespaces, 0)?.0)
+    let (result, index) = calculate(&no_whitespaces, 0)?;
+
+    if index < no_whitespaces.len() {
+        return Err(ParsingError {
+            text: no_whitespaces,
+            index,
+        });
+    }
+
+    Ok(result)
 }
 
 /// Removes whitespaces in a given valid expression.
@@ -68,26 +67,21 @@ fn calculate(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
     let (mut res, mut i) = calculate_term(&text, index)?;
 
     while i < text.len() {
-        let operation;
-
         if let Some(ch) = text.chars().nth(i) {
-            if ch == '+' {
-                operation = Operation::Add;
-            } else if ch == '-' {
-                operation = Operation::Subt;
-            } else {
+            let operation = Operation::Operator(ch).from_operator();
+
+            if operation.order() != OperationOrder::Second {
                 break;
             }
 
-            i += 1;
-            let (new_val, new_index) = calculate_term(&text, i)?;
+            let (new_val, new_index) = calculate_term(&text, i + 1)?;
 
             i = new_index;
-            res = if operation == Operation::Add {
-                res + new_val
-            } else {
-                res - new_val
-            };
+            match operation {
+                Operation::Add => res += new_val,
+                Operation::Subt => res -= new_val,
+                _ => break,
+            }
         }
     }
 
@@ -105,30 +99,23 @@ fn calculate_term(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
     let (mut res, mut i) = calculate_factor(&text, index)?;
 
     while i < text.len() {
-        let operation;
-
         if let Some(ch) = text.chars().nth(i) {
-            if ch == '*' {
-                operation = Operation::Mult;
-            } else if ch == '/' {
-                operation = Operation::Div;
-            } else if ch == '%' {
-                operation = Operation::Mod;
-            } else {
+            let operation = Operation::Operator(ch).from_operator();
+
+            if operation.order() != OperationOrder::First {
                 break;
             }
 
-            i += 1;
+            let (new_val, new_index) = calculate_factor(&text, i + 1)?;
 
-            let (new_val, new_index) = calculate_factor(&text, i)?;
             i = new_index;
-            res = if operation == Operation::Mult {
-                res * new_val
-            } else if operation == Operation::Div {
-                res / new_val
-            } else {
-                res % new_val
-            };
+
+            match operation {
+                Operation::Mult => res *= new_val,
+                Operation::Div => res /= new_val,
+                Operation::Mod => res %= new_val,
+                _ => break,
+            }
         }
     }
 
@@ -153,6 +140,7 @@ fn calculate_factor(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
         } else if is_parentheses(ch) {
             i += 1;
             let (new_val, index) = calculate(&text, i)?;
+            println!("Here with char {}", ch);
 
             i = index;
             res += new_val;
@@ -177,6 +165,11 @@ fn calculate_factor(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
                 }
             }
         }
+    } else {
+        return Err(ParsingError {
+            text: String::from(text),
+            index: i,
+        });
     }
 
     Ok((res, i))
