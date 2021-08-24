@@ -3,20 +3,22 @@ use super::{checker::*, operations::*, parsing_error::*};
 /// Abstraction of tuple returned by calculation function.
 type CalcRes = (f64, usize);
 
-/// Parses the expression and returns f64 as a result of calculation or <br> ParsingError if invalid expression encountered
-///
-/// # Arguments
-///
-/// * `exp` - String reference containing the expressin to be evaluated
-/// # Example
-/// ```
-/// let expression = "2 + 2 * 3"
-/// let result = parse_expression(&expression);
-/// match result {
-///     Ok(val) => println!("{}", val),
-///     Err(parsing_error) => println!("{}", parsing_error),
-/// }
-/// ```
+/**
+Parses the expression and returns f64 as a result of calculation or <br> ParsingError if invalid expression encountered
+
+# Arguments
+
+* `exp` - String reference containing the expressin to be evaluated
+# Example
+```
+let expression = "2 + 2 * 3";
+let result = calculator_lib::parser::calculator::parse_expression(&expression);
+match result {
+    Ok(val) => assert_eq!(8.0, val),
+    Err(parsing_error) => panic!("\n{}", parsing_error),
+}
+```
+*/
 pub fn parse_expression(exp: &str) -> Result<f64, ParsingError> {
     let no_whitespaces = remove_whitespaces(exp)?;
 
@@ -32,9 +34,18 @@ pub fn parse_expression(exp: &str) -> Result<f64, ParsingError> {
     Ok(result)
 }
 
-/// Removes whitespaces in a given valid expression.
-///
-/// Returns new String, or ParsingError if expression contains invalid characters
+/**
+Removes whitespaces in a given valid expression.
+
+Returns new String, or ParsingError if expression contains invalid characters
+
+# Example:
+```ignore
+let text = "1 + 2 * (3 - 2)";
+let result = remove_whitespaces(&text);
+println!("{}", result.unwrap()); // prints 1+2*(3-2)
+```
+*/
 fn remove_whitespaces(text: &str) -> Result<String, ParsingError> {
     let mut res: String = "".into();
 
@@ -57,12 +68,14 @@ fn remove_whitespaces(text: &str) -> Result<String, ParsingError> {
     Ok(res)
 }
 
-/// Parse and calculate the given expression. <br>
-/// Returns either Tuple containing calculated result as f64 and index of the next character to observe as usize
-/// or ParsingError in case something goes wrong (like missing closing parentheses or number with multiple periods etc.)
-/// # Arguments
-/// * `text` - Expression as a string reference
-/// * `index` - The index of character to observe next
+/**
+Parse and calculate the given expression. <br>
+Returns either Tuple containing calculated result as f64 and index of the next character to observe as usize
+or ParsingError in case something goes wrong (like missing closing parentheses or number with multiple periods etc.)
+# Arguments
+* `text` - Expression as a string reference
+* `index` - The index of character to observe next
+*/
 fn calculate(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
     let (mut res, mut i) = calculate_term(&text, index)?;
 
@@ -88,13 +101,15 @@ fn calculate(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
     Ok((res, i))
 }
 
-/// Parse and calculate a term, i.e. a multiplication is considered one term.
-/// Example: `28 * (3 + 4)` would all be considered one term. <br>
-/// Returns either Tuple containing calculated result as f64 and index of the next character to observe as usize
-/// or ParsingError in case something goes wrong (like missing closing parentheses or number with multiple periods etc.)
-/// # Arguments
-/// * `text` - Expression as a string reference
-/// * `index` - The index of character to observe next
+/**
+Parse and calculate a term, i.e. a multiplication is considered one term.
+Example: `28 * (3 + 4)` would all be considered one term. <br>
+Returns either Tuple containing calculated result as f64 and index of the next character to observe as usize
+or ParsingError in case something goes wrong (like missing closing parentheses or number with multiple periods etc.)
+# Arguments
+* `text` - Expression as a string reference
+* `index` - The index of character to observe next
+*/
 fn calculate_term(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
     let (mut res, mut i) = calculate_factor(&text, index)?;
 
@@ -122,12 +137,14 @@ fn calculate_term(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
     Ok((res, i))
 }
 
-/// Parse and calculate a given factor. A factor can be a number, or an expression inside parentheses. <br>
-/// Returns either Tuple containing calculated result as f64 and index of the next character to observe as usize
-/// or ParsingError in case something goes wrong (like missing closing parentheses or number with multiple periods etc.)
-/// # Arguments
-/// * `text` - Expression as a string reference
-/// * `index` - The index of character to observe next
+/**
+Parse and calculate a given factor. A factor can be a number, or an expression inside parentheses. <br>
+Returns either Tuple containing calculated result as f64 and index of the next character to observe as usize
+or ParsingError in case something goes wrong (like missing closing parentheses or number with multiple periods etc.)
+# Arguments
+* `text` - Expression as a string reference
+* `index` - The index of character to observe next
+*/
 fn calculate_factor(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
     let mut res = 0.0;
     let mut i = index;
@@ -140,7 +157,6 @@ fn calculate_factor(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
         } else if is_parentheses(ch) {
             i += 1;
             let (new_val, index) = calculate(&text, i)?;
-            println!("Here with char {}", ch);
 
             i = index;
             res += new_val;
@@ -175,12 +191,14 @@ fn calculate_factor(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
     Ok((res, i))
 }
 
-/// Parse the given number. <br>
-/// Returns either Tuple containing the number as f64 and index of the next character to observe as usize
-/// or ParsingError in case something goes wrong (like missing closing parentheses or number with multiple periods etc.)
-/// # Arguments
-/// * `text` - Expression as a string reference
-/// * `index` - The index of character to observe next
+/**
+Parse the given number. <br>
+Returns either Tuple containing the number as f64 and index of the next character to observe as usize
+or ParsingError in case something goes wrong (like missing closing parentheses or number with multiple periods etc.)
+# Arguments
+* `text` - Expression as a string reference
+* `index` - The index of character to observe next
+*/
 fn parse_number(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
     let mut digits = String::new();
     let mut res = 0.0;

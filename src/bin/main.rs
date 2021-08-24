@@ -1,7 +1,5 @@
+use calculator_lib::parser::calculator::parse_expression;
 use std::{env, process};
-
-mod parser;
-use parser::calculator::parse_expression;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
