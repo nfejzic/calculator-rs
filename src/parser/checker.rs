@@ -11,7 +11,7 @@ pub fn is_number(ch: char) -> bool {
 /// # Arguments
 /// * `ch` - a character to check
 pub fn is_binary_arithmetic_symbol(ch: char) -> bool {
-    ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%'
+    ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '^'
 }
 
 /// Checks if given number is a open or close parentheses

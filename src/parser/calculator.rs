@@ -201,9 +201,10 @@ or ParsingError in case something goes wrong (like missing closing parentheses o
 */
 fn parse_number(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
     let mut digits = String::new();
-    let mut res = 0.0;
+    let mut res: f64 = 0.0;
     let mut i = index;
     let mut is_factor = false;
+    let mut has_power = false;
     let mut has_comma = false;
 
     while let Some(ch) = text.chars().nth(i) {
@@ -226,13 +227,39 @@ fn parse_number(text: &str, index: usize) -> Result<CalcRes, ParsingError> {
             is_factor = true;
             digits = digits + &ch.to_string();
             i += 1;
+        } else if ch == '^' {
+            if has_power {
+                let power = digits.parse::<f64>().unwrap();
+
+                res = res.powf(power);
+
+                digits.clear();
+            } else {
+                has_power = true;
+
+                // extract current number
+                if is_factor {
+                    res = digits.parse::<f64>().unwrap();
+                }
+
+                // restart reading of number
+                digits.clear();
+            }
+
+            i += 1;
         } else {
             break;
         }
     }
 
     if is_factor {
-        res = digits.parse::<f64>().unwrap();
+        if has_power {
+            let power = digits.parse::<f64>().unwrap();
+
+            res = res.powf(power);
+        } else {
+            res = digits.parse::<f64>().unwrap();
+        }
     }
 
     Ok((res, i))

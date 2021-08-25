@@ -6,6 +6,7 @@ pub enum Operation {
     Mult,
     Div,
     Mod,
+    Pow,
     Invalid,
 }
 
@@ -18,6 +19,7 @@ impl Operation {
                 '*' => Operation::Mult,
                 '/' => Operation::Div,
                 '%' => Operation::Mod,
+                '^' => Operation::Pow,
                 _ => Operation::Invalid,
             }
         } else {
@@ -29,6 +31,7 @@ impl Operation {
         match self {
             &Self::Add | &Self::Subt => OperationOrder::Second,
             &Self::Mult | &Self::Div | &Self::Mod => OperationOrder::First,
+            &Self::Pow => OperationOrder::Power,
             _ => OperationOrder::None,
         }
     }
@@ -36,6 +39,7 @@ impl Operation {
 
 #[derive(Eq, PartialEq)]
 pub enum OperationOrder {
+    Power,
     First,  // Mult, Div, Mod
     Second, // Add, Subt
     None,
